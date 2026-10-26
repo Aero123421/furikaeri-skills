@@ -13,275 +13,128 @@
   <img alt="Works with" src="https://img.shields.io/badge/works%20with-Claude%20%C2%B7%20ChatGPT%20%C2%B7%20Codex%20%C2%B7%20Pi%20%C2%B7%20OpenCode-B5835A">
 </p>
 
-**furikaeri（振り返り）** は、やったことを振り返って、次の一手をもっと良くするための [Agent Skills](https://agentskills.io) です。
+**furikaeri**（振り返り）は、AIと一緒にものを作る人のための、振り返りの仕組みです。AIは、前のチャットで決めたことを覚えていません。そこで、あなたとAIが決めたことを書き残し、非公開のGitリポジトリ（**アーカイブ**）にためて、作業中にAIが確認できるようにします。
 
-4つの小さなSkillで、**あなたとAIが何を決めて何を作ったか**を振り返り、それを **Gitのアーカイブ**に貯め、作業中のAIが**思い出せる**ようにし、**エージェント自身の働き方**も点検します。中身はただのMarkdownです。スクリプトもデータベースも不要で、作業中のプロジェクトには何もインストールしません。
+[Agent Skills](https://agentskills.io)（スキル）は、AIへの指示を書いたMarkdownファイルです。Claude・ChatGPT・Codex・Pi・OpenCode などのAIツールが、必要なときに読み込みます。furikaeri は、このスキルを4つ集めたものです。プログラムもデータベースも要りません。
+
+## 4つのスキル
 
 <p align="center">
   <img src="docs/images/skills-ja.svg" alt="4つのSkill：furikaeri-project（書く）、furikaeri-recall（思い出す）、furikaeri-archive（しまう）、furikaeri-harness（点検）" width="100%">
 </p>
 
-| Skill | 役割 | 見るもの | 得られるもの |
-|---|---|---|---|
-| **`furikaeri-project`** | 書く | 会話、コミット、アーカイブにある過去の決定 | プロジェクトのレポート：意思決定、認識のずれ、ドリフト、協働のパターン、記録しないと消える文脈 |
-| **`furikaeri-recall`** | 思い出す | 作業中に、アーカイブを読むだけ | 作業開始時の短い要約、記録された決定とぶつかる提案の前のひとこと、「なんで〜だっけ？」への答え |
-| **`furikaeri-archive`** | しまう | アーカイブのリポジトリ | 作成、プロジェクトの追加、索引の再構築、エージェント用の案内文 |
-| **`furikaeri-harness`** | 点検 | セッションログ：ツール呼び出し、Skill、モデル、トークンとキャッシュヒット、コンパクション、サブエージェント、手戻り | `ADD / UPDATE / REMOVE / NO_CHANGE` 形式の改善提案と、Skill化する価値のある繰り返し作業 |
+| スキル | 何をする？ | 頼みかたの例 |
+|---|---|---|
+| `furikaeri-project` | あなたとAIが決めたこと・作ったことを振り返って、レポートを書きます。アーカイブに保存もします。 | 「昨日の振り返りして」 |
+| `furikaeri-recall` | 作業中に、アーカイブを見て過去の決定を確認します。読むだけです。 | 「なんでRedisやめたんだっけ？」 |
+| `furikaeri-archive` | アーカイブを作って、手入れします。 | 「アーカイブを作って」 |
+| `furikaeri-harness` | AIツール自身の働き方（使ったモデルやツール、同じことの繰り返し）を点検して、直し方を提案します。 | 「今週のAIの働き方を振り返って」 |
 
-## 全体の流れ
+`furikaeri-harness` の harness（ハーネス）は、Claude Code や Codex のように、AIモデルを動かすツールのことです。
 
-<p align="center">
-  <img src="docs/images/flow-ja.svg" alt="Claudeの会話、ChatGPTの会話、エージェントのログ、Gitの履歴がfurikaeri-projectに集まり、Gitのアーカイブに保存される。furikaeri-recallが作業中のAIと次の振り返りのためにそれを読み返す" width="100%">
-</p>
+## はじめかた
 
-- **アーカイブが記憶になります。** 各プロジェクトの `INDEX.md` には、記録された現状・決定ログ・*照合ヒント*（別名・リポジトリ・キーワード）があります。振り返りはまずここを読むので、新しい決定なのか、以前の決定を覆したのかを見分けられます。`furikaeri-recall` を使えば、普段の作業中にも活かせます。
-- **アーカイブが自分の説明書を持っています。** ルートの `FURIKAERI.md` に、設定・ファイルの置き場所・レポートのテンプレート・プライバシーのルールが書いてあります。Skillを入れていないエージェント（たとえばChatGPTの定期タスク）でも、これを読めば同じ形式で書けます。チームで形式を変えたいときも、このファイル1つを編集するだけです。
-- **各サービスは自分の会話を振り返ります。** ClaudeはChatGPTの履歴を読めませんし、その逆も同じです。だからそれぞれが同じプロジェクトに自分のレポートを置き、並べて残します。
-- **コンテキストに詰め込みません。** レポートはGitに貯まり、エージェントが読むのは索引と、その作業に必要な少数のレポートだけです。
-- **記録は一部だけ、と分かっています。** AIから見えない場所で決まることはたくさんあります。[アーカイブがすべてではない](#アーカイブがすべてではない) を見てください。
-
-## インストール
-
-### 方法A — コマンド1つ
+**1. インストール**
 
 ```bash
 npx skills add Aero123421/furikaeri-skills --skill '*' -g
 ```
 
-[`skills` CLI](https://github.com/vercel-labs/skills) が、どのエージェントに入れるか（Claude Code・Codex・OpenCode・Cursor など）を聞いてきます。最初から指定するなら `-a claude-code -a codex` を付けてください。
+どのAIツールに入れるかを聞かれます。
 
-### 方法B — フォルダをコピー
+`npx` が使えない場合や、Claudeアプリ・ChatGPTで使う場合は、[ほかのインストール方法](docs/GUIDE.ja.md#ほかのインストール方法)を見てください。
 
-```bash
-git clone https://github.com/Aero123421/furikaeri-skills.git
-cd furikaeri-skills
-
-# Claude Code（OpenCodeもこのフォルダを読みます）
-mkdir -p ~/.claude/skills && cp -r skills/* ~/.claude/skills/
-
-# Codex・Pi・OpenCode
-mkdir -p ~/.agents/skills && cp -r skills/* ~/.agents/skills/
-```
-
-| エージェント | Skillの置き場所 | 呼び出し方 |
-|---|---|---|
-| Claude Code | `~/.claude/skills/` または `.claude/skills/` | `/furikaeri-project` |
-| Codex | `~/.agents/skills/` または `.agents/skills/` | `$furikaeri-project` |
-| Pi | `~/.agents/skills/` または `~/.pi/agent/skills/` | `/skill:furikaeri-project` |
-| OpenCode | `~/.agents/skills/`・`~/.claude/skills/`・`~/.config/opencode/skills/` | 普通に頼めばSkillを名前で読み込みます |
-
-### 方法C — ClaudeアプリとChatGPT
-
-Skillのフォルダをそれぞれzipにして、カスタムSkillとしてアップロードします。
-
-```bash
-cd skills && for s in furikaeri-*; do zip -r "../$s.zip" "$s"; done
-```
-
-- **Claude（claude.ai・デスクトップ・モバイル）**：Skillsの設定からzipをアップロードします。
-- **ChatGPT**：プランがSkillsに対応していればアップロードします。対応していなければインストールは不要です。[定期実行プロンプト](prompts/scheduled-daily.ja.md)とアーカイブの `FURIKAERI.md` だけで、やり方がすべて伝わります。
-
-> [!TIP]
-> このSkillは、頼んだときだけ動く想定です。Claude Codeでは、frontmatterに `disable-model-invocation: true` を足すとそれを強制できます（Claude Code独自の拡張で、標準仕様ではありません）。
-
-## はじめかた
-
-**1. アーカイブを作る** — すべての振り返りを入れる、非公開のリポジトリを1つ用意します。
+**2. アーカイブを作る** AIにこう頼みます。
 
 ```text
 furikaeri のアーカイブを github.com/<あなた>/furikaeri-archive に作って（非公開で）
 ```
 
-`furikaeri-archive` が `FURIKAERI.md` と `INDEX.md` を作り、レポートの言語・タイムゾーン・個人かチームか、などをいくつか聞いてきます。
+レポートの言語、タイムゾーン、個人かチームか、をいくつか聞かれます。
 
-**2. プロジェクトを追加する** — 照合ヒントがあると、次から会話がどのプロジェクトのものか分かるようになります。
+**3. プロジェクトを追加する**
 
 ```text
 アーカイブにプロジェクト「acme-api」を追加して。
 リポジトリは github.com/<あなた>/acme-api。「acme」「API v2」とも呼んでる。
 ```
 
-追加すると、短い案内文が2つ出てきます。プロジェクトの `AGENTS.md` 用と、ChatGPT・Claudeのメモリー用です。これを貼っておくと、エージェントが作業前にアーカイブを見るようになります。[AIに思い出させる](#aiに思い出させる) を見てください。
+ほかの呼び名を書いておくと、次からそのプロジェクトを見つけやすくなります。
 
-**3. 振り返る**
+貼りつけ用の短い案内文も2つ出ます。[AIに思い出させる](#aiに思い出させる任意)を見てください。
+
+**4. 振り返る**
 
 ```text
-今日の振り返りして
+振り返りして
 ```
 
-チャットにレポートが出ます。確認すると `projects/acme-api/reports/2026-10/2026-10-26_claude_<あなた>.md` に保存され、プロジェクトの `INDEX.md` も更新されます。
+チャットにレポートが出ます。「はい」と答えると、アーカイブに保存されます。
 
-**4. （任意）デフォルトを1回だけ設定する** — `furikaeri-project`・`furikaeri-recall`・`furikaeri-harness` の SKILL.md 先頭にある **Defaults** 欄に、アーカイブ（とハンドル名）を書いておくと、毎回言わなくて済みます。
+> [!TIP]
+> 新しいチャットでは、AIがまだアーカイブを知らないことがあります。依頼にアーカイブ名を添えてください。たとえば `振り返りして。アーカイブは github.com/<あなた>/furikaeri-archive` のように書きます。毎回書くのが面倒なら、[デフォルトに登録](docs/GUIDE.ja.md#アーカイブを一度だけ登録する)できます。
 
-**5. （任意）毎晩自動にする** — [毎日の自動化](#毎日の自動化) を見てください。
-
-## こんなふうに頼めます
-
-| 言い方 | Skill | 何が起きるか |
-|---|---|---|
-| 「振り返りして」「今日の振り返り」 | project | 今日、動きのあったすべてのプロジェクト |
-| 「acme-api の先週の振り返り」 | project | 1つのプロジェクト、先週の月〜日 |
-| 「10/20〜10/26を振り返ってPRにして」 | project | 期間指定、プルリクエストで公開 |
-| 「今週のエージェントの使い方を振り返って」 | harness | ツール・モデル・キャッシュ・コンパクション・サブエージェントの指標 |
-| 「今月、Skillにできそうな作業ある？」 | harness | 繰り返し作業を根拠つきで |
-| （acme-apiで作業を始める） | recall | 記録された現状の要約を5行以内で、1セッションに1回 |
-| 「なんでRedisやめたんだっけ？」 | recall | 決定と日付・出典。なければ「アーカイブには記録なし」 |
-| 「プロジェクトを追加して」「アーカイブの索引を作り直して」 | archive | アーカイブの手入れ |
-
-**期間**：今日（デフォルト）・昨日・ここ1週間・先週（月〜日）・ここ1ヶ月・日付・`2026-10-01..2026-10-26` のような範囲。時刻はあなたのタイムゾーンで数えます。
-
-## 毎日の自動化
+## 毎日自動で振り返る（任意）
 
 <p align="center">
   <img src="docs/images/daily-ja.svg" alt="毎晩、定期タスクが起動し、昨日の会話を振り返り、Gitにレポートを保存する" width="100%">
 </p>
 
-1. **Claude** または **ChatGPT** で **Scheduled** を開き、新しいタスクを作ります。時刻は **01:07** のように、ちょうどの時刻から少しずらすのがおすすめです。
-2. [`prompts/scheduled-daily.ja.md`](prompts/scheduled-daily.ja.md) のプロンプトを貼り付け、アーカイブ・ハンドル名・ソース（`claude` か `chatgpt`）を書き換えます。
-3. 初回の実行結果を確認します。レポートの **Coverage** に、タスクから何が見えて何が見えなかったかが書いてあります。
+定期タスクは、ClaudeやChatGPTが決めた時刻にプロンプトを自動で実行してくれる機能です。これを使うと、毎晩AIが振り返ってくれます。
 
-両方のサービスで設定すると、毎朝プロジェクトごとにサービス別のレポートが並びます。コーディングエージェントなら、同じプロンプトをcronから実行できます（例：`claude -p`、`codex exec`）。
+1. **Claude** または **ChatGPT** で **Scheduled** を開き、新しいタスクを作ります。時刻は、ちょうどの時刻から少しずらして、**01:07** のようにします。
+2. [`prompts/scheduled-daily.ja.md`](prompts/scheduled-daily.ja.md)（[English](prompts/scheduled-daily.md)）のプロンプトを貼り付けます。アーカイブ、ハンドル名（ファイル名に使う短い名前）、ソース（`claude` か `chatgpt`）を書き換えてください。
+3. 初回の実行後に、レポートの **Coverage** 欄を見ます。タスクから何が見えて、何が見えなかったかが書いてあります。
 
-## AIに思い出させる
+両方のサービスで設定すると、プロジェクトごとに、サービス別のレポートが並びます。
 
-読み返されない記録は、何も変えません。`furikaeri-recall` は読むだけのSkillで、作業中のエージェントがプロジェクトの `INDEX.md` を見るのは次の3つのときだけです。
+Claude CodeやCodexで使うときは、[サービスごとの注意](prompts/scheduled-daily.ja.md#サービスごとの注意)を見てください。
 
-1. プロジェクトの作業を始める・再開するとき（5行以内の要約を、1セッションに1回）
-2. 設計・ツール・方針を提案する前（記録された決定とぶつかるときは1回だけ伝えて、あとはあなたの答えに従う）
-3. 「何を決めたっけ？」「なんで？」と聞かれたとき
+## AIに思い出させる（任意）
 
-Skillは説明文で選ばれるので、それだけでは確実に動くとは限りません。プロジェクトを追加したときに `furikaeri-archive` が出す案内文を貼っておいてください。
+読み返されない記録は、何も変えません。短い2行を貼っておくと、AIが先にアーカイブを見てくれます。
+
+プロジェクトの `AGENTS.md` か `CLAUDE.md` 用です（そのプロジェクトでAIに守ってほしいことを書いておくファイルです。1つ目は英語のまま使えます）。
 
 ```markdown
 ## furikaeri
 Before starting work or proposing a design here, check `projects/acme-api/INDEX.md` in github.com/you/furikaeri-archive (furikaeri-recall). It is a partial record: what I say now wins.
 ```
 
+ChatGPTかClaudeのメモリー用です。
+
 ```text
 プロジェクトの決定の一部は github.com/you/furikaeri-archive に記録している。そこにあるプロジェクトの作業を始めるときや、設計を提案する前には、まずその INDEX.md を見て。私が今言っていることと違ったら確認して。今の私の発言が優先。
 ```
 
-1つ目はプロジェクトの `AGENTS.md` か `CLAUDE.md` に、2つ目はChatGPTかClaudeのメモリーに入れます。どちらも「何が書いてあるか」ではなく「いつ見るか」だけを書いているので、短く済みます。`furikaeri-harness` を使うと、設計を提案する前にrecallがちゃんと動いたかを数字で確認できるので、案内文の調整にも使えます。
+プロジェクトを追加すると、`furikaeri-archive` がこの2行を、あなたのアーカイブ名を入れて出してくれます。
 
-## アーカイブがすべてではない
+すると `furikaeri-recall` が、次の3つのときにプロジェクトの記録を見ます。作業を始める・再開するとき、AIが設計やツールを提案する前、「何を決めたっけ？」「なんで？」と聞かれたときです。
 
-アーカイブに入るのは、AIが見られた範囲から、AIが書き残したものだけです。会議・Slack・定期タスクのないチャット・Skillを入れていないエージェント・最後の振り返り以降で決まったことは入っていません。レポートもAIの解釈で、質はまちまちです。すべてのSkillと、アーカイブの `FURIKAERI.md` は、この前提で読みます。
+## ひとつだけ知っておいてほしいこと
 
-- **記録にない ≠ 存在しない。** 「Xは決まっていない」とは言わず、「アーカイブにはXの記録がない」と言います。
-- **記録 ≠ 今の真実。** 今のあなたの発言がアーカイブより優先です。食い違いは「記録が古い」と考えて、確認します。
-- **決定だけが決定。** `[interp]`（解釈）や `[proposal]`（提案）を決定として読み返しません。決定ログに入るのは、あなたが決めた・受け入れたものだけです。
-- **少なく、出典つきで、静かに。** recallが見せるのは「アーカイブより、○月○日までの記録」と書いた数行だけです。食い違いは1回だけ伝え、関係ないときは何も言いません。記録は作業の参考にはなっても、作業を引っ張りません。
+アーカイブは、記録のすべてではありません。AIが見られて、書き残したことしか入っていません。会議や別のチャット、最近決めたことは、入っていないかもしれません。
 
-## レポートの例
+だから、AIはアーカイブを「参考」として読みます。**いまのあなたの言葉が、いつでも優先です。** 記録と違うことを言うと、AIは1回だけ確認して、そのあとはあなたに従います。
 
-```markdown
-# acme-api — 2026-10-26 (claude)
+## くわしい説明
 
-## Decisions
-| Decision | Status | Rationale | Evidence |
-|---|---|---|---|
-| RESTを維持し、GraphQLの試作はやめる | changed | それなしでレイテンシ目標を達成 | 14:20の会話, PR #42 |
+すべて[ガイド](docs/GUIDE.ja.md)にあります。
 
-## Alignment & drift
-- [fact] 「エラー処理は最小限で」と頼んだが、AIがリトライの仕組みを追加した。
-- [interp] AIのドリフト：10/20に決めた「新しい抽象化は入れない」が失われていた。
-
-## Context that would be lost
-- 却下：ゲートウェイでのキャッシュ — 認証ヘッダーがユーザーごとに違うため。
-```
-
-すべての記述に `[fact]`（出典つき）・`[interp]`（解釈）・`[proposal]`（提案）のラベルが付きます。このリポジトリ自体の設計セッションから作った実例が [`examples/`](examples/projects/furikaeri-skills/reports/2026-10/2026-10-26_multi_aero.md) にあります。レポートの言語は `FURIKAERI.md` の `language` で決まるので、`ja` にすれば日本語で書かれます。
-
-## アーカイブの構成
-
-```
-furikaeri-archive/
-├── FURIKAERI.md                    設定・パス・レポートのテンプレート・プライバシー
-├── INDEX.md                        すべてのプロジェクトと照合ヒント
-├── projects/
-│   └── acme-api/
-│       ├── INDEX.md                現状・決定ログ・未解決の問い
-│       └── reports/2026-10/
-│           ├── 2026-10-26_claude_you.md
-│           └── 2026-10-26_chatgpt_you.md
-└── harness/you/2026-10/            （任意）harnessのレポート
-```
-
-設定は `FURIKAERI.md` にあります。
-
-```yaml
-mode: personal          # personal（個人）| team（チーム）
-language: ja            # レポートの言語
-timezone: Asia/Tokyo
-publish: direct         # direct（push）| pr（プルリクエスト）
-new-projects: propose   # propose（提案だけ）| create（自動で作る）
-meta-analysis: full     # full | collaboration-only | off
-```
-
-## 大事にしていること
-
-- **記憶より証拠。** 指標はログから取り、取れなければ「unknown」と書きます。「完了」はコミット・テスト・ファイルで確かめます。
-- **事実・解釈・提案を分けて書きます。**
-- **指示は少なく、鋭く。** エージェントのうっかりミスと指示そのものの欠陥を分けて考え、ルールを足すより絞る・消すほうを優先します。
-- **提案はしても、勝手に書き換えません。** あなたのSkill・`AGENTS.md`・`CLAUDE.md` は書き換えず、差分を提案します。
-- **見えなかった範囲を隠しません。** 取れなかったログや会話は、推測で埋めずにそう書きます。
-- **記録は一部だけ。** 参考にはしても、決めるのは今のあなたの言葉です。
-- **人を採点しません。** 協働のメモは観察できるパターンだけを書き、プライバシー設定に従い、チームメイトを評価しません。
-
-## よくある質問
-
-<details>
-<summary><b>PythonやNode、サーバーは必要？</b></summary>
-
-不要です。SkillはMarkdownだけです。ログを分析するときは、エージェントがもともと使えるツール（`git`・`jq`・`sqlite3` など）でその場限りのコマンドを実行します。
-</details>
-
-<details>
-<summary><b>データはどこに行く？</b></summary>
-
-あなたが選んだアーカイブのリポジトリだけです。非公開にしておいてください。秘密情報・トークン・会話の生ログはコミットしません。
-</details>
-
-<details>
-<summary><b>チームで1つのアーカイブを共有できる？</b></summary>
-
-できます。`mode: team` と `publish: pr` にしてください。レポートには作成者のハンドル名が付き、他人のレポートは編集しません。`meta-analysis: collaboration-only` にすると、人ではなくやり取りのパターンだけを書きます。
-</details>
-
-<details>
-<summary><b>アーカイブの記録が、私の指示より優先されることはある？</b></summary>
-
-ありません。今のあなたの発言が優先です。記録された決定と違うときは、`furikaeri-recall` が1回だけ「まだそのままですか？ 別の場所で変えましたか？」と確認し、そのあとはあなたに従います。変更は次の振り返りで記録されます。
-</details>
-
-<details>
-<summary><b>AGENTS.md やSkillを勝手に変えない？</b></summary>
-
-変えません。`furikaeri-harness` は正確な差分と、次回それが効いたか確かめる方法を提案するだけです。決めるのはあなたです。
-</details>
-
-<details>
-<summary><b>harnessの振り返りで古いセッションが見つからないのはなぜ？</b></summary>
-
-ログを消すエージェントがあるからです。たとえばClaude Codeは、デフォルトで30日後に削除します（`cleanupPeriodDays`）。定期的に振り返るか、この設定を延ばしてください。
-</details>
-
-## リポジトリの構成
-
-```
-skills/
-├── furikaeri-harness/   SKILL.md・references/log-sources.md
-├── furikaeri-project/   SKILL.md
-├── furikaeri-recall/    SKILL.md
-└── furikaeri-archive/   SKILL.md・assets/（FURIKAERI.md、INDEX.md、PROJECT_INDEX.md）
-prompts/                 scheduled-daily.md・scheduled-daily.ja.md
-examples/                プロジェクト索引とレポートの実例
-docs/images/             このREADMEのイラスト
-```
+- [ほかのインストール方法](docs/GUIDE.ja.md#ほかのインストール方法)：フォルダのコピー、Claudeアプリ、ChatGPT、AIツールごとの置き場所と呼び出し方
+- [こんなふうに頼めます](docs/GUIDE.ja.md#こんなふうに頼めます)：頼みかたの例と、指定できる期間
+- [全体の流れ](docs/GUIDE.ja.md#全体の流れ)：図で見る
+- [furikaeri-harnessが見るもの](docs/GUIDE.ja.md#furikaeri-harnessが見るもの)
+- [AIはアーカイブをどう扱うか](docs/GUIDE.ja.md#aiはアーカイブをどう扱うか)
+- [アーカイブの中身と設定](docs/GUIDE.ja.md#アーカイブの中身と設定)
+- [レポートの例](docs/GUIDE.ja.md#レポートの例)
+- [大事にしていること](docs/GUIDE.ja.md#大事にしていること)
+- [よくある質問](docs/GUIDE.ja.md#よくある質問)
+- [リポジトリの構成](docs/GUIDE.ja.md#リポジトリの構成)
 
 ## コントリビュート
 
-IssueやPRを歓迎します。特に、ほかのエージェントのログ形式（[`log-sources.md`](skills/furikaeri-harness/references/log-sources.md)）、レポートテンプレートの翻訳、定期タスクから何が見えて何が見えないかの報告は大助かりです。
+IssueやPRを歓迎します。特に助かるのは、ほかのAIツールがセッションログを置く場所（[`log-sources.md`](skills/furikaeri-harness/references/log-sources.md)）、レポートテンプレートの翻訳、定期タスクから何が見えて何が見えないかの報告です。
 
 ## ライセンス
 
