@@ -18,12 +18,15 @@ Period: same rules as furikaeri-project — default today; "yesterday", "last 7 
 
 ## 2. Collect
 
-Read `references/log-sources.md` for where Claude Code, Codex, Pi and OpenCode keep sessions and which fields hold model, usage, tools and compaction.
+Read `references/log-sources.md` for where Claude Code, Codex, Pi and OpenCode keep sessions, which fields hold model, usage, tools and compaction, and its **counting rules**.
 
 - Look at a few lines before parsing; formats change between versions.
 - Compute with one-off `jq` / `python` / `sqlite3` commands that stream the files. Never load whole logs into context.
 - Filter by event timestamps in the user's timezone.
-- A metric that is absent or null is **unknown** — never estimate it from conversation length.
+- Count each API response once. Some logs split one response into several records (Claude Code: one per content block, same `message.id`).
+- Cumulative counters (Codex) give period usage only as *end − baseline* per session; without a baseline the period value is unknown. Keep session totals and period usage apart.
+- A metric that is absent or null is **unknown** — never 0, and never estimated from conversation length. A sum of the known values is a subtotal: report how many responses or sessions it leaves out.
+- Claude Code's per-record `output_tokens` is a placeholder; report output as unknown unless the log has a final count.
 - Chat surfaces (claude.ai, ChatGPT) expose no token or cache data: do the qualitative parts only and say so.
 - Logs contain secrets and personal data: summarize, never quote raw tool output.
 
@@ -33,7 +36,7 @@ Read `references/log-sources.md` for where Claude Code, Codex, Pi and OpenCode k
 |---|---|
 | Sessions | count, turns, duration, working directories |
 | Models | requested vs actual, switches mid-session |
-| Tokens | input, output, cache read, cache write |
+| Tokens | input, output, cache read, cache write — deduplicated, with the count of unknowns |
 | Cache | hit rate = cache read ÷ all input tokens (per-harness definitions in the reference); drops after model switches or compaction |
 | Compaction | count, context size before/after, what was lost (later re-asks or re-reads) |
 | Tools | calls by name, errors, retries, the same file read repeatedly, near-identical searches |

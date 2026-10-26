@@ -56,7 +56,8 @@ sources: [chatgpt-conversation (exported and pasted), claude-conversation, git:A
 ## Outcomes & evidence
 
 - [fact] v0.1 published to `Aero123421/furikaeri-skills` (initial commit).
-- [fact] The Claude Code log snippet was run on a real transcript: cache reads were about 97% of input tokens; 5 of 32 assistant records had no usage and are reported as unknown, not zero.
+- [fact] The Claude Code log snippet was run on a real transcript, counting each response once: cache reads were about 96% of input tokens over 11 responses; 4 responses had no usage and are reported as unknown, not zero. Output tokens: unknown (the per-record value is a placeholder).
+- [fact] Three issues were filed against v0.1 the same day (#1–#3): double-counted Claude Code usage, Codex period totals, and project selection that differed with and without the skill. All three were fixed.
 - Unverified: scheduled runs in Claude and ChatGPT; Pi and OpenCode log fields on real sessions.
 
 ## Collaboration notes

@@ -26,7 +26,7 @@ With no archive, deliver the report in the conversation and stop there.
 | last month / ここ1ヶ月 | same date last month → now |
 | a date / a range | that day / both ends inclusive |
 
-- **Mode**: projects named → only those. None named → discovery: every project in the archive, plus unassigned work.
+- **Mode**: projects named → only those. None named → discovery: archive projects with substantive activity in the period, plus unassigned work.
 - **Source**: the surface whose conversations you analyze (`claude`, `chatgpt`, `claude-code`, `codex`, `pi`, `opencode`, …).
 
 ## 2. Load the archive (read before you write)
@@ -53,9 +53,21 @@ Filter by message timestamps, not session start. Extract per session, then merge
 
 ## 4. Assign work to projects
 
-Match conversations against the match hints (names, aliases, repo URLs, chat-project names, keywords). One conversation can touch several projects. Ignore trivial one-off questions. Substantive work that matches nothing goes under **Unassigned** with a proposed slug; create a project only if `FURIKAERI.md` says `new-projects: create` or the user confirms (then follow furikaeri-archive's add-project steps).
+Match conversations against the match hints (names, aliases, repo URLs, chat-project names, keywords). One conversation can touch several projects. Ignore trivial one-off questions.
 
-## 5. Analyze each project
+A project is **active** when the period's evidence shows substantive work on it. Only active projects get a report or any change to their files. For the rest, write nothing and say in your reply which case applies:
+
+- **No activity** — you could check its sources and found nothing.
+- **Not checked** — a source it depends on was unreachable. Give the reason; never call this "no activity".
+
+If the user named a project and it had no activity, tell them; write a file only if they ask.
+
+**New projects** follow `new-projects` in `FURIKAERI.md`, the same way in interactive and scheduled runs:
+
+- `propose` (the default) — add the unmatched work, with a proposed slug, to the Unassigned section of the root `INDEX.md`. In an interactive run the user may confirm creating it.
+- `create` — create it as `FURIKAERI.md` describes (or with furikaeri-archive's add-project steps), then treat it as active.
+
+## 5. Analyze each active project
 
 Depth scales with the period: a day → concrete timeline; a week or month → trends, recurring problems, comparison with earlier reports.
 
@@ -72,7 +84,7 @@ Mark claims `[fact]` (with its source), `[interp]`, or `[proposal]`. Stay propor
 
 ## 6. Write and file
 
-Follow the template in `FURIKAERI.md`. Without an archive, use these sections: Summary, Coverage, Timeline, Decisions, Alignment & drift, Outcomes & evidence, Collaboration notes, Context that would be lost, Next actions.
+Only for active projects (§4). Follow the template in `FURIKAERI.md`. Without an archive, use these sections: Summary, Coverage, Timeline, Decisions, Alignment & drift, Outcomes & evidence, Collaboration notes, Context that would be lost, Next actions.
 
 Default path: `projects/<slug>/reports/YYYY-MM/<period>_<source>_<author>.md` (period `2026-10-26` or `2026-10-20--2026-10-26`).
 
@@ -92,4 +104,4 @@ Commit message: `furikaeri(<slug>): <period> <source>`.
 
 ## 8. Reply
 
-Projects covered, 3–5 key findings, file paths or links, coverage gaps. Don't restate the report.
+Projects covered, projects with no activity or not checked, 3–5 key findings, file paths or links, coverage gaps. Don't restate the report.

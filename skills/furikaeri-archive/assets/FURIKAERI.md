@@ -79,6 +79,16 @@ What was examined, what could not be accessed, known gaps.
 
 Label claims `[fact]` (with a source), `[interp]` or `[proposal]`. An empty section gets "—", not filler.
 
+## Which projects get a report
+
+- Only projects with substantive activity in the period. Leave every other project's files untouched — no empty reports, no index edits.
+- Say which inactive projects had **no activity** (checked, nothing found) and which were **not checked** (a source was unreachable). Never record "no activity" for a project you couldn't check.
+- Unmatched work follows `new-projects`: `propose` → add it with a proposed slug to the Unassigned section of `INDEX.md`; `create` → create the project (below). This applies with or without the furikaeri skills, in interactive and scheduled runs alike.
+
+## New projects
+
+Slug: lowercase letters, digits and hyphens. Create `projects/<slug>/INDEX.md` with the sections Overview, Match hints (aliases, repositories, chat projects, keywords), Current state, Decision log, Open questions and Reports, then add the project's row to `INDEX.md` and remove it from Unassigned.
+
 ## After writing a report
 
 Update `projects/<slug>/INDEX.md` — rewrite Current state; prepend to Decision log (mark superseded entries, never delete); add or close Open questions; prepend the report link — and the project's row in the root `INDEX.md`.
