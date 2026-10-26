@@ -40,7 +40,7 @@ Read `references/log-sources.md` for where Claude Code, Codex, Pi and OpenCode k
 | Cache | hit rate = cache read ÷ all input tokens (per-harness definitions in the reference); drops after model switches or compaction |
 | Compaction | count, context size before/after, what was lost (later re-asks or re-reads) |
 | Tools | calls by name, errors, retries, the same file read repeatedly, near-identical searches |
-| Skills | loaded, when, by trigger or by user; loaded but irrelevant; relevant but never loaded |
+| Skills | loaded, when, by trigger or by user; loaded but irrelevant; relevant but never loaded. For furikaeri-recall: was the project's INDEX read before design proposals, and how often did it load for nothing? |
 | Subagents | count, task, tokens/duration if logged, overlapping work, whether results were used |
 | Friction | user interruptions, corrections ("no, I meant…"), repeated explanations, permission denials |
 
@@ -57,7 +57,7 @@ Check for conflicts: skills whose descriptions overlap or both claim the task, a
 
 ## 5. Skill candidates
 
-A workflow qualifies when it recurs at least 3 times across at least 2 sessions (in this period, or confirmed by earlier harness reports), has a describable trigger, has stable steps, and no existing skill covers it. For each: proposed name, a one-line description saying when to use and when not to, an outline of at most five steps, evidence (sessions and dates), and the expected saving. Don't create the skill — offer to hand it to a skill-creator.
+A workflow qualifies when it recurs at least 3 times across at least 2 sessions (in this period, or confirmed by earlier harness reports), has a describable trigger, has stable steps, and no existing skill covers it. For each: proposed name, a one-line description saying when to use and when not to, an outline of at most five steps, evidence (sessions and dates), and the expected saving. Counts cover only the logs you could read: work on other machines, in other harnesses or in deleted logs is invisible, so say "seen N times", not "happens N times". Don't create the skill — offer to hand it to a skill-creator.
 
 ## 6. Report
 
