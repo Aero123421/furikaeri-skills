@@ -107,7 +107,7 @@ Each finding says what happened, what kind of problem it is, and one of these:
 
 It also lists jobs you repeat that could become a skill: seen at least 3 times, in at least 2 sessions. It never edits your files. It proposes the exact change, and a way to check next time that it worked.
 
-In chat apps (claude.ai, ChatGPT) the AI can't read token or cache data, so only the parts that need no numbers apply. If you set an archive, harness reports are filed under `harness/` in it.
+In chat apps (claude.ai, ChatGPT) the AI can't read token or cache data, so only the parts that need no numbers apply. If you set an archive, harness reports are filed under `harness/` in it, and the next review reads the latest one to check whether its proposals worked. Without an archive, that check only works within the same chat.
 
 It can also check whether `furikaeri-recall` ran before the AI proposed a design. With that, you can tune the lines in [Let your AI remember](../README.md#let-your-ai-remember-optional) using numbers.
 
