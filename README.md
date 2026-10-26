@@ -15,28 +15,30 @@
 
 **furikaeri** (振り返り, *fu-ri-ka-e-ri*) is Japanese for looking back on what you did, so the next thing goes better.
 
-This repository is three small [Agent Skills](https://agentskills.io) that do exactly that for AI work. They review **how your agent worked**, review **what you and your AI decided and built**, and keep those reviews in a **Git archive** that every agent reads before the next one. Plain Markdown: no scripts, no database, nothing to install in your projects.
+This repository is four small [Agent Skills](https://agentskills.io) that do exactly that for AI work. They review **what you and your AI decided and built**, keep those reviews in a **Git archive**, let your agents **recall** them while they work, and review **how your agent itself worked**. Plain Markdown: no scripts, no database, nothing to install in your projects.
 
 <p align="center">
-  <img src="docs/images/skills-en.svg" alt="The three skills: furikaeri-harness, furikaeri-project, furikaeri-archive" width="100%">
+  <img src="docs/images/skills-en.svg" alt="The four skills: furikaeri-project (write), furikaeri-recall (recall), furikaeri-archive (store), furikaeri-harness (tune)" width="100%">
 </p>
 
-| Skill | Looks at | Gives you |
-|---|---|---|
-| **`furikaeri-harness`** | session logs: tool calls, skills, models, tokens and cache hits, compaction, subagents, friction | findings as `ADD / UPDATE / REMOVE / NO_CHANGE` proposals, plus repeated workflows worth turning into new skills |
-| **`furikaeri-project`** | your conversations, commits, and the archive's past decisions | a project report: decisions, alignment, drift, collaboration patterns, and the context that would otherwise be lost |
-| **`furikaeri-archive`** | the archive repository | creates it, adds projects, rebuilds the indexes |
+| Skill | Role | Looks at | Gives you |
+|---|---|---|---|
+| **`furikaeri-project`** | write | your conversations, commits, and the archive's past decisions | a project report: decisions, alignment, drift, collaboration patterns, and the context that would otherwise be lost |
+| **`furikaeri-recall`** | recall | the archive, read-only, while you work | a short brief when work starts, a flag before a proposal that clashes with a recorded decision, answers to "why did we…?" |
+| **`furikaeri-archive`** | store | the archive repository | creates it, adds projects, rebuilds the indexes, prints the pointer lines for your agents |
+| **`furikaeri-harness`** | tune | session logs: tool calls, skills, models, tokens and cache hits, compaction, subagents, friction | findings as `ADD / UPDATE / REMOVE / NO_CHANGE` proposals, plus repeated workflows worth turning into new skills |
 
 ## How it fits together
 
 <p align="center">
-  <img src="docs/images/flow-en.svg" alt="Claude chats, ChatGPT chats, agent logs and git history flow into furikaeri-project, which files reports into a Git archive that the next run reads first" width="100%">
+  <img src="docs/images/flow-en.svg" alt="Claude chats, ChatGPT chats, agent logs and git history flow into furikaeri-project, which files reports into a Git archive; furikaeri-recall reads it back for agents at work and for the next review" width="100%">
 </p>
 
-- **The archive is the memory.** Each project has an `INDEX.md` with its current state, a decision log, and *match hints* (aliases, repos, keywords). Every run reads it first, so it can tell a new decision from a reversed one.
+- **The archive is the memory.** Each project has an `INDEX.md` with its recorded state, a decision log, and *match hints* (aliases, repos, keywords). Reviews read it first, so they can tell a new decision from a reversed one — and `furikaeri-recall` brings it into everyday work.
 - **The archive explains itself.** `FURIKAERI.md` at its root holds the settings, file paths, report template and privacy rules. An agent without these skills — say, a ChatGPT scheduled task — can still follow it. A team changes the format by editing one file.
 - **Each service reviews its own chats.** Claude can't read your ChatGPT history and vice versa, so each one files its own report into the same project, side by side.
 - **Nothing gets stuffed into context.** Reports pile up in Git; agents read only the indexes and the few reports a task needs.
+- **It is a partial record, and it knows it.** Plenty is decided where no agent can see. See [The archive is never the whole story](#the-archive-is-never-the-whole-story).
 
 ## Install
 
@@ -99,6 +101,8 @@ Add project "acme-api" to my archive.
 Repo: github.com/<you>/acme-api. Also called "acme" or "API v2".
 ```
 
+It also prints two short pointer lines — one for the project's `AGENTS.md`, one for ChatGPT/Claude memory — so your agents check the archive before working. See [Let your agents remember](#let-your-agents-remember).
+
 **3. Look back.**
 
 ```text
@@ -107,7 +111,7 @@ furikaeri for today
 
 You get a report in the chat. When you confirm, it's saved as `projects/acme-api/reports/2026-10/2026-10-26_claude_<you>.md`, and the project's `INDEX.md` is updated.
 
-**4. (Optional) Set your defaults once.** Edit the **Defaults** block at the top of `furikaeri-project/SKILL.md` and `furikaeri-harness/SKILL.md` with your archive and handle, so you don't have to repeat them.
+**4. (Optional) Set your defaults once.** Edit the **Defaults** block at the top of `furikaeri-project`, `furikaeri-recall` and `furikaeri-harness` with your archive (and handle), so you don't have to repeat them.
 
 **5. (Optional) Make it nightly.** See [Daily automation](#daily-automation).
 
@@ -120,6 +124,8 @@ You get a report in the chat. When you confirm, it's saved as `projects/acme-api
 | "look back on Oct 20–26 and open a PR" | project | a date range, published as a pull request |
 | "review how my agent worked this week" | harness | tool, model, cache, compaction and subagent metrics |
 | "anything worth turning into a skill this month?" | harness | repeated workflows, with evidence |
+| *(you start working on acme-api)* | recall | a five-line brief of the recorded state, once per session |
+| "why did we drop Redis?" | recall | the decision, its date and source — or "not in the archive" |
 | "add project …" · "reindex the archive" | archive | archive maintenance |
 
 **Periods:** today (default) · yesterday · last 7 days · last week (Mon–Sun) · last month · a date · a range like `2026-10-01..2026-10-26`. Times are in your timezone.
@@ -135,6 +141,36 @@ You get a report in the chat. When you confirm, it's saved as `projects/acme-api
 3. Check the first run: the report's **Coverage** section tells you what the task could and couldn't see.
 
 Set it up in both services and each project gets one report per source every morning. For coding agents, run the same prompt from cron, e.g. `claude -p` or `codex exec`.
+
+## Let your agents remember
+
+A record nobody reads back changes nothing. `furikaeri-recall` is the read-only side: while you work, your agent looks at the project's `INDEX.md` at three moments only —
+
+1. when work on a project starts or resumes (a brief of at most five lines, once per session),
+2. before it proposes a design, tool or direction (it flags a clash with a recorded decision once, then follows your answer),
+3. when you ask what was decided, or why.
+
+Skills are picked by their description, which isn't always enough. Paste the pointer lines that `furikaeri-archive` prints when you add a project:
+
+```markdown
+## furikaeri
+Before starting work or proposing a design here, check `projects/acme-api/INDEX.md` in github.com/you/furikaeri-archive (furikaeri-recall). It is a partial record: what I say now wins.
+```
+
+```text
+My project decisions are partly recorded in github.com/you/furikaeri-archive. When I start work on a project listed there, or before you propose a design for it, check its INDEX.md first. If it differs from what I say, ask — what I say now wins.
+```
+
+The first goes in the project's `AGENTS.md` or `CLAUDE.md`, the second in ChatGPT or Claude memory. Both say *when* to look, not *what* is there, so they stay short. `furikaeri-harness` can tell you whether recall actually fired before design proposals, so you can tune the wording with numbers.
+
+## The archive is never the whole story
+
+The archive holds only what agents could see and chose to write down. Decisions made in meetings, in Slack, in chats without a furikaeri task, by agents without these skills, or since the last report aren't in it — and reports are AI interpretations of varying quality. Every skill, and the archive's own `FURIKAERI.md`, reads it that way:
+
+- **Not recorded ≠ didn't happen.** Agents say "the archive has no record of X", never "X wasn't decided".
+- **Recorded ≠ true now.** What you say now outranks the archive. A mismatch is treated as a stale record, and the agent asks.
+- **Only decisions are decisions.** `[interp]` lines and `[proposal]`s are never read back as decisions; only decisions you made or accepted enter the Decision log.
+- **Small, labeled, and quiet.** Recall shows a few lines marked "from the archive, recorded up to <date>", raises a clash once, and stays silent when nothing applies — so the record informs the work without steering it.
 
 ## What a report looks like
 
@@ -189,6 +225,7 @@ meta-analysis: full     # full | collaboration-only | off
 - **Fewer, sharper instructions.** Findings separate an agent's slip from a defect in its instructions, and prefer narrowing or removing a rule over adding one.
 - **Propose, don't self-edit.** The skills never rewrite your skills, `AGENTS.md` or `CLAUDE.md`; they propose diffs.
 - **Coverage is explicit.** Missing logs and unreachable chats are reported, never filled in.
+- **The record is partial.** It informs; what you say now decides.
 - **People are not graded.** Collaboration notes describe observable patterns, follow your privacy setting, and never characterize teammates.
 
 ## FAQ
@@ -212,6 +249,12 @@ Yes. Set `mode: team` and `publish: pr`. Reports carry each author's handle, nob
 </details>
 
 <details>
+<summary><b>Will the archive overrule what I tell my agent?</b></summary>
+
+No. What you say now wins. If it differs from a recorded decision, `furikaeri-recall` asks once ("still true, or changed elsewhere?") and then follows you. The next retrospective records the change.
+</details>
+
+<details>
 <summary><b>Will it change my AGENTS.md or my skills?</b></summary>
 
 No. `furikaeri-harness` proposes exact diffs and a way to verify them next time. You decide.
@@ -229,6 +272,7 @@ Some agents delete transcripts. Claude Code, for example, keeps them 30 days by 
 skills/
 ├── furikaeri-harness/   SKILL.md · references/log-sources.md
 ├── furikaeri-project/   SKILL.md
+├── furikaeri-recall/    SKILL.md
 └── furikaeri-archive/   SKILL.md · assets/ (FURIKAERI.md, INDEX.md, PROJECT_INDEX.md)
 prompts/                 scheduled-daily.md · scheduled-daily.ja.md
 examples/                a sample project index and report

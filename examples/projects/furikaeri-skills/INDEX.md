@@ -15,6 +15,7 @@ Markdown-only Agent Skills for retrospectives of AI agents and human–AI projec
 
 ## Current state
 
+- Recorded up to: 2026-10-26 (multi, coverage: partial)
 - Goal: daily retrospectives from Claude and ChatGPT land in one Git archive, and every agent reads past decisions before writing new ones.
 - Direction: three skills (harness, project, archive); Markdown only; conventions live in the archive's `FURIKAERI.md`.
 - Constraints: nothing installed in work projects; no scripts, databases or CI; never self-edit skills or AGENTS.md.

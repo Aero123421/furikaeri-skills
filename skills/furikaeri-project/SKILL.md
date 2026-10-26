@@ -40,6 +40,8 @@ Access it however this environment allows: a local clone, `git clone` with exist
 
 Never load the whole archive. The project's own source repository is the truth for code state; the archive explains *why*.
 
+The archive is a partial record (see `FURIKAERI.md`): decisions are also made where it can't see. Not recorded ≠ didn't happen, and recorded ≠ still true.
+
 ## 3. Collect evidence for the period
 
 Use what actually exists here and list every source in Coverage:
@@ -72,9 +74,9 @@ If the user named a project and it had no activity, tell them; write a file only
 Depth scales with the period: a day → concrete timeline; a week or month → trends, recurring problems, comparison with earlier reports.
 
 1. **Work & outcomes** — what actually changed. Check every "done" against evidence (commits, tests, files, PRs); otherwise mark it unverified.
-2. **Decisions** — adopted and rejected options, rationale, assumptions. Compare with the decision log: *new / reaffirmed / changed / reverted*. Flag contradictions with earlier decisions explicitly.
+2. **Decisions** — adopted and rejected options, rationale, assumptions. Only what the user made or accepted is a decision; an AI proposal nobody took up is not. Compare with the decision log: *new / reaffirmed / changed / reverted*. Flag what looks like a contradiction "as far as the record shows".
 3. **Alignment** — what the user asked, how the AI interpreted it, what it did; where corrections happened and how many turns they took.
-4. **Drift** — goal, scope, constraints, terminology, success criteria. Classify each shift: (a) the user deliberately changed course, (b) the AI drifted or lost a constraint, (c) new information. Only (b) is an AI failure. Cite where it started.
+4. **Drift** — goal, scope, constraints, terminology, success criteria. Classify each shift: (a) the user deliberately changed course, (b) the AI drifted or lost a constraint, (c) new information, (d) can't tell — the user is acting on something the record doesn't show, possibly decided elsewhere. Only (b) is an AI failure; don't force (d) into (a) or (b). Cite where it started.
 5. **Collaboration (meta)** — observable patterns only: how requests were specified, where ambiguity cost rework, the autonomy the user expected vs what the AI took, decision tempo, recurring friction. No personality or emotional judgments. Obey the `meta-analysis` setting.
 6. **Agent influence (light)** — skills, subagents or models that changed the outcome (e.g. parallel subagents diverging on assumptions). Cost and efficiency belong to furikaeri-harness.
 7. **Context that would be lost** — rejected options and why, failed attempts, the next hypotheses, preferences stated in passing. Prioritize this over anything re-findable in git.

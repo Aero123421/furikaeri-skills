@@ -1,6 +1,6 @@
 ---
 name: furikaeri-archive
-description: Create or maintain a furikaeri archive — a Git repository of Markdown retrospectives organized by project, for one person or a team. Use to set up a new archive, add a project, rebuild the indexes, or check the archive's health. Reports themselves are written by furikaeri-project.
+description: Create or maintain a furikaeri archive — a Git repository of Markdown retrospectives organized by project, for one person or a team. Use to set up a new archive, add a project, rebuild the indexes, or check the archive's health. Reports are written by furikaeri-project and read back by furikaeri-recall.
 license: MIT
 ---
 
@@ -30,6 +30,20 @@ The archive is plain Markdown in Git. Its `FURIKAERI.md` tells every agent — C
 1. Choose a slug (lowercase letters, digits, hyphens). Make sure no existing project already covers it under another name or alias.
 2. Create `projects/<slug>/INDEX.md` from `assets/PROJECT_INDEX.md`. Fill Overview and Match hints — aliases, repository URLs, Claude/ChatGPT project names, distinctive keywords — from the user or the conversation that prompted it. furikaeri-project assigns conversations using these hints, so make them concrete.
 3. Add the project's row to the root `INDEX.md`, then commit and publish per the archive's `publish` setting.
+4. Give the user two short pointer lines to paste, so their agents look things up before working (furikaeri-recall). Fill in the archive and slug; don't write them anywhere yourself.
+
+   For the project's `AGENTS.md` or `CLAUDE.md`:
+
+   ```markdown
+   ## furikaeri
+   Before starting work or proposing a design here, check `projects/<slug>/INDEX.md` in <archive> (furikaeri-recall). It is a partial record: what I say now wins.
+   ```
+
+   For ChatGPT or Claude memory, in the user's language:
+
+   ```text
+   My project decisions are partly recorded in <archive>. When I start work on a project listed there, or before you propose a design for it, check its INDEX.md first. If it differs from what I say, ask — what I say now wins.
+   ```
 
 ## reindex
 
@@ -39,7 +53,7 @@ When a project `INDEX.md` grows past roughly 150 lines, move Decision log entrie
 
 ## health (on request)
 
-Look for: projects with no report in a long while, Current state that contradicts the latest report, projects with overlapping aliases, conversations stuck under Unassigned. Propose fixes; apply only after the user confirms.
+Look for: projects with no report in a long while, Current state that contradicts the latest report, projects with overlapping aliases, conversations stuck under Unassigned, and Decision log entries that have no source or record a proposal rather than a decision — other agents read these back as context. Propose fixes; apply only after the user confirms.
 
 ## Rules
 

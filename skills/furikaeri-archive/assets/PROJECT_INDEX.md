@@ -13,7 +13,8 @@
 
 ## Current state
 
-<!-- rewritten by each report: the latest truth -->
+<!-- rewritten by each report: the latest *recorded* state — partial, and possibly stale -->
+- Recorded up to:         <!-- 2026-10-26 (claude, coverage: partial) -->
 - Goal:
 - Direction:
 - Constraints:
@@ -21,7 +22,7 @@
 
 ## Decision log
 
-<!-- newest first; superseded entries are marked, never deleted -->
+<!-- newest first; only decisions the user made or accepted, each with a source; superseded entries are marked, never deleted -->
 <!-- - 2026-10-26 — <decision> — [report](reports/2026-10/2026-10-26_claude_me.md) -->
 
 ## Open questions
